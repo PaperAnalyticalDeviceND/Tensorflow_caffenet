@@ -3,15 +3,32 @@
 # and random to partition the data into test and training sets
 import tensorflow as tf
 import numpy as np
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 import math
 from os.path import dirname, abspath
 from os.path import join
 import os.path
 import PIL
 import random
-import urllib.request
+#import urllib.request
 from PIL import Image, ImageEnhance, ImageStat
+import sys
+import getopt
+
+#get inlines
+#inline parameter?
+optlist, args = getopt.getopt(sys.argv[1:], 'i:')
+
+#image to analyzed
+image_location = '/var/www/html/joomla/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png'
+
+for o, a in optlist:
+    if o == '-i':
+        image_location = a
+        print("Image location", image_location)
+    else:
+        print('Unhandled option: ', o)
+        sys.exit(-2)
 
 #variables
 classes = 9 #Amoxicillin rerun,Acetaminophen,Ciprofloxacin,Ceftriaxone,Metformin,Ampicillin,Azithromycin,Cefuroxime Axetil,Levofloxacin
@@ -217,9 +234,9 @@ firstline = f.readline()
 drugs = firstline.split(',')
 
 #get it
-urllib.request.urlretrieve( 'https://pad.crc.nd.edu/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png', 'test.jpg')
+#urllib.request.urlretrieve( 'https://pad.crc.nd.edu/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png', 'test.jpg')
 #Load png file using the PIL library
-img = PIL.Image.open('test.jpg')
+img = PIL.Image.open(image_location)
 #crop out active area
 img = img.crop((71, 359, 71+636, 359+490))
 #lanes split
