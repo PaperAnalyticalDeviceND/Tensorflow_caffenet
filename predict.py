@@ -1,4 +1,11 @@
-# Load libraries. We need tensorflow and numpy for training the CNN,
+#####################################################
+# Tensorflow prediction for PADs using Caffenet CNN #
+# @author Chris Sweet <csweet1@nd.edu>              #
+# @version 1.0 11/15/18                             #
+#####################################################
+
+#~Load libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# We need tensorflow and numpy for training the CNN,
 # matplotlib for plotting, os.path and PIL for loading images,
 # and random to partition the data into test and training sets
 import tensorflow as tf
@@ -15,23 +22,54 @@ from PIL import Image, ImageEnhance, ImageStat
 import sys
 import getopt
 
-#get inlines
+#~get inlines~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #inline parameter?
-optlist, args = getopt.getopt(sys.argv[1:], 'i:')
+optlist, args = getopt.getopt(sys.argv[1:], 'i:n:')
 
 #image to analyzed
 image_location = '/var/www/html/joomla/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png'
+nnet_file = 'tensor_100_9.nnet'
 
 for o, a in optlist:
     if o == '-i':
         image_location = a
         print("Image location", image_location)
+    elif o == '-n':
+        nnet_file = a
+        #print("Network definition file location", nnet_file)
     else:
         print('Unhandled option: ', o)
         sys.exit(-2)
 
-#variables
-classes = 9 #Amoxicillin rerun,Acetaminophen,Ciprofloxacin,Ceftriaxone,Metformin,Ampicillin,Azithromycin,Cefuroxime Axetil,Levofloxacin
+#~Read network definition file~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#open and read file
+with open(nnet_file) as fin:
+    content = fin.readlines()
+
+fin.close()
+
+#strip spaces
+content = [x.strip() for x in content]
+
+#parse contents of definition file
+drugs = ""
+exclude = ""
+model_checkpoint = ""
+
+for line in content:
+    if 'DRUGS' in line:
+        drugs = line[6:].split(',')
+    elif 'LANES' in line:
+        exclude = line[6:]
+    elif 'WEIGHTS' in line:
+        model_checkpoint = line[8:]
+
+#print("Drugs", drugs, len(drugs))
+#print("Exclude", exclude)
+#print("Model", model_checkpoint)
+
+#~variables~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+classes = len(drugs) #9 #Amoxicillin rerun,Acetaminophen,Ciprofloxacin,Ceftriaxone,Metformin,Ampicillin,Azithromycin,Cefuroxime Axetil,Levofloxacin
 
 # Parameters for training
 #learning rate is the step size that we move in the opposite direction of the gradient for each weight/bias
@@ -78,13 +116,14 @@ img_shape = (227, 227)
 #the images are color so 3 channels
 channels = 3
 
+#now loaded from nnet
 #location of the weights/biases and architecture for the CNN checkpoint
-model_checkpoint = "tmp/caffenet_pad_1.ckpt"
+#model_checkpoint = "tmp/caffenet_pad_1.ckpt"
 
 #image batch size
 image_batch_size = 128
 
-# Define CNN
+#~Define CNN~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #create place holders, these will be loaded with data as we train
 X = tf.placeholder(tf.float32, shape=[None, img_shape[0]*img_shape[1]*channels], name='X') #the set of input images
 X_image = tf.reshape(X, [-1, img_shape[0], img_shape[1], channels]) #a single image
@@ -208,6 +247,7 @@ accuracy = tf.reduce_mean(tf.cast(tf.equal(pred, Y_classes), tf.float32))
 # Add ops to save and restore all the variables.
 saver = tf.train.Saver({'conv_W1': conv_W1,'conv_B1': conv_B1,'conv_W2': conv_W2,'conv_B2': conv_B2,'conv_W3': conv_W3,'conv_B3': conv_B3,'conv_W4': conv_W4,'conv_B4': conv_B4,'conv_W5': conv_W5,'conv_B5': conv_B5,'fc_W1': fc_W1,'fc_B1': fc_B1,'fc_W2': fc_W2,'fc_B2': fc_B2,'fc_W3': fc_W3,'fc_B3': fc_B3}) #tf.global_variables ())
 
+#~Identification~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #location of the weights/biases and architecture for the CNN (saved above)
 model_for_identification = model_checkpoint
 
@@ -228,10 +268,10 @@ def identify(image):
         #return result (add 1 as indexed from 1 not 0)
         return result[0], prob_array
 
-#load drug names
-f = open('drug_names.txt')
-firstline = f.readline()
-drugs = firstline.split(',')
+#load drug names, now loaded in nnet file
+#f = open('drug_names.txt')
+#firstline = f.readline()
+#drugs = firstline.split(',')
 
 #get it
 #urllib.request.urlretrieve( 'https://pad.crc.nd.edu/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png', 'test.jpg')
@@ -242,8 +282,8 @@ img = img.crop((71, 359, 71+636, 359+490))
 #lanes split
 lane = []
 
-#exclude these lanes
-exclude = "AJ"
+#exclude these lanes, now loaded from nnet file
+#exclude = "AJ"
 
 #loop over lanes
 for i in range(0,12):
@@ -266,5 +306,8 @@ imgout = imgout.resize((227,227), Image.ANTIALIAS)
 #catagorize
 predicted_drug, predicted_prob = identify(imgout)
 
+#~Print outout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print(drugs[predicted_drug])
 print(predicted_prob[0][predicted_drug])
+
+#~End~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
