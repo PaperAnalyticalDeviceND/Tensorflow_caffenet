@@ -24,22 +24,27 @@ import getopt
 
 #~get inlines~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #inline parameter?
-optlist, args = getopt.getopt(sys.argv[1:], 'i:n:')
+optlist, args = getopt.getopt(sys.argv[1:], 'i:n:d')
 
 #image to analyzed
 image_location = '/var/www/html/joomla/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png'
 nnet_file = 'tensor_100_9.nnet'
+debug_print = False
 
 for o, a in optlist:
     if o == '-i':
         image_location = a
-        #print("Image location", image_location)
     elif o == '-n':
         nnet_file = a
-        #print("Network definition file location", nnet_file)
+    elif o == '-d':
+        debug_print = True
     else:
         print('Unhandled option: ', o)
         sys.exit(-2)
+
+if debug_print:
+    print("Image location", image_location)
+    print("Network definition file location", nnet_file)
 
 #~Read network definition file~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #open and read file
@@ -72,10 +77,11 @@ if type != "tensorflow":
     print('Not tensorflow network!')
     sys.exit(-2)
 
-#print("Type", type)
-#print("Drugs", drugs, len(drugs))
-#print("Exclude", exclude)
-#print("Model", model_checkpoint)
+if debug_print:
+    print("Type", type)
+    print("Drugs", drugs, len(drugs))
+    print("Exclude", exclude)
+    print("Model", model_checkpoint)
 
 #~variables~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 classes = len(drugs) #9 #Amoxicillin rerun,Acetaminophen,Ciprofloxacin,Ceftriaxone,Metformin,Ampicillin,Azithromycin,Cefuroxime Axetil,Levofloxacin
