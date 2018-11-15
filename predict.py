@@ -266,4 +266,5 @@ imgout = imgout.resize((227,227), Image.ANTIALIAS)
 #catagorize
 predicted_drug, predicted_prob = identify(imgout)
 
-print("Drug predicted to be", drugs[predicted_drug])
+print(drugs[predicted_drug])
+print(predicted_prob[0][predicted_drug])
