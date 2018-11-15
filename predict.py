@@ -55,6 +55,7 @@ content = [x.strip() for x in content]
 drugs = ""
 exclude = ""
 model_checkpoint = ""
+type = ""
 
 for line in content:
     if 'DRUGS' in line:
@@ -63,7 +64,15 @@ for line in content:
         exclude = line[6:]
     elif 'WEIGHTS' in line:
         model_checkpoint = line[8:]
+    elif 'TYPE' in line:
+        type = line[5:]
 
+#test for Tensorflow
+if type != "tensorflow":
+    print('Not tensorflow network!')
+    sys.exit(-2)
+
+#print("Type", type)
 #print("Drugs", drugs, len(drugs))
 #print("Exclude", exclude)
 #print("Model", model_checkpoint)
