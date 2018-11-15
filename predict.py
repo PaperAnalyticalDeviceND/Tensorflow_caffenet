@@ -33,7 +33,7 @@ nnet_file = 'tensor_100_9.nnet'
 for o, a in optlist:
     if o == '-i':
         image_location = a
-        print("Image location", image_location)
+        #print("Image location", image_location)
     elif o == '-n':
         nnet_file = a
         #print("Network definition file location", nnet_file)
