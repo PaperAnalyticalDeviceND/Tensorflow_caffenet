@@ -1,0 +1,6 @@
+DRUGS,Amoxicillin rerun,Acetaminophen,Ciprofloxacin,Ceftriaxone,Metformin,Ampicillin,Azithromycin,Cefuroxime Axetil,Levofloxacin
+LANES,AJ
+WEIGHTS,tmp/caffenet_pad_1.ckpt
+TYPE,tensorflow
+DESCRIPTION,9 drug NN generated using color variation of +/-0.5 and +/-75px height distortion.
+TEST,12LanePADKenya2015
