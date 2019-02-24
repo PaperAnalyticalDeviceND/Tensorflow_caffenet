@@ -29,7 +29,7 @@ optlist, args = getopt.getopt(sys.argv[1:], 'i:n:dr:')
 
 #image to analyzed
 image_location = '/var/www/html/joomla/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png'
-nnet_file = 'tensor_100_9b.nnet'
+nnet_file = 'tensor_100_9.nnet'
 debug_print = False
 randpart = ''
 
