@@ -21,10 +21,11 @@ import random
 from PIL import Image, ImageEnhance, ImageStat
 import sys
 import getopt
+import copy
 
 #~get inlines~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #inline parameter?
-optlist, args = getopt.getopt(sys.argv[1:], 'i:n:d:r')
+optlist, args = getopt.getopt(sys.argv[1:], 'i:n:dr:')
 
 #image to analyzed
 image_location = '/var/www/html/joomla/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png'
@@ -163,19 +164,19 @@ predicted_drug, predicted_prob = identify(imgout)
 #output to emulate caffe classifier
 if randpart != '':
     #find the highest probability
-    temppred = copy.deepcopy(predicted_prob)
+    temppred = copy.deepcopy(predicted_prob[0])
     pClass1 = temppred.argmax()
 
-    temppred[pClass1] = 0
+    temppred[pClass1] = -1
     pClass2 = temppred.argmax()
 
-    temppred[pClass2] = 0
+    temppred[pClass2] = -1
     pClass3 = temppred.argmax()
 
     f = open('nnet/nn'+randpart+'.csv',"w+")
 
     #save to temp file
-    f.write(drugs[pClass1]+','+str(predicted_prob[pClass1])+','+str(pClass1)+','+drugs[pClass2]+','+str(predicted_prob[pClass2])+','+str(pClass2)+','+drugs[pClass3]+','+str(predicted_prob[pClass3])+','+str(pClass3)+',\r\n')
+    f.write(drugs[pClass1]+','+str(predicted_prob[0][pClass1])+','+str(pClass1)+','+drugs[pClass2]+','+str(predicted_prob[0][pClass2])+','+str(pClass2)+','+drugs[pClass3]+','+str(predicted_prob[0][pClass3])+','+str(pClass3)+',\r\n')
 
     f.close()
 
