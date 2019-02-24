@@ -24,18 +24,21 @@ import getopt
 
 #~get inlines~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #inline parameter?
-optlist, args = getopt.getopt(sys.argv[1:], 'i:n:d')
+optlist, args = getopt.getopt(sys.argv[1:], 'i:n:d:r')
 
 #image to analyzed
 image_location = '/var/www/html/joomla/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png'
 nnet_file = 'tensor_100_9b.nnet'
 debug_print = False
+randpart = ''
 
 for o, a in optlist:
     if o == '-i':
         image_location = a
     elif o == '-n':
         nnet_file = a
+    elif o == '-r':
+        randpart = a
     elif o == '-d':
         debug_print = True
     else:
@@ -113,7 +116,7 @@ def identify(image):
         result = sess.run(pred, feed_dict={X: image, Placeholder: 1.})
         #we can look at the softmax output as well
         prob_array = sess.run(output, feed_dict={X: image, Placeholder: 1.})
-        #print("op",prob_array)
+        #print("result",result,"prob",prob_array)
 
         #return result (add 1 as indexed from 1 not 0)
         return result[0], prob_array
@@ -156,6 +159,26 @@ imgout = imgout.resize((227,227), Image.ANTIALIAS)
 
 #catagorize
 predicted_drug, predicted_prob = identify(imgout)
+
+#output to emulate caffe classifier
+if randpart != '':
+    #find the highest probability
+    temppred = copy.deepcopy(predicted_prob)
+    pClass1 = temppred.argmax()
+
+    temppred[pClass1] = 0
+    pClass2 = temppred.argmax()
+
+    temppred[pClass2] = 0
+    pClass3 = temppred.argmax()
+
+    f = open('nnet/nn'+randpart+'.csv',"w+")
+
+    #save to temp file
+    f.write(drugs[pClass1]+','+str(predicted_prob[pClass1])+','+str(pClass1)+','+drugs[pClass2]+','+str(predicted_prob[pClass2])+','+str(pClass2)+','+drugs[pClass3]+','+str(predicted_prob[pClass3])+','+str(pClass3)+',\r\n')
+
+    f.close()
+
 
 #~Print outout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print(drugs[predicted_drug])
