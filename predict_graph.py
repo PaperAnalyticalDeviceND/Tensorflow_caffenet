@@ -132,6 +132,13 @@ def identify(image):
 #urllib.request.urlretrieve( 'https://pad.crc.nd.edu/images/padimages/processed//Acetaminophen-12LanePADKenya2015-1-58861.processed.png', 'test.jpg')
 #Load png file using the PIL library
 img = PIL.Image.open(image_location)
+
+#check image rectified
+width, height = img.size
+if width != 730 or height != 1220:
+    print("Image not rectified")
+    sys.exit(-3)
+
 #crop out active area
 img = img.crop((71, 359, 71+636, 359+490))
 #lanes split
