@@ -109,14 +109,14 @@ def identify(image):
         pred = graph.get_tensor_by_name("pred:0")
         output = graph.get_tensor_by_name("output:0")
         X = graph.get_tensor_by_name("X:0")
-        Placeholder = graph.get_tensor_by_name("Placeholder:0")
+        keep_prob = graph.get_tensor_by_name("keep_prob:0")
 
         #saver.restore(sess, model_for_identification)
 
         #find the prediction
-        result = sess.run(pred, feed_dict={X: image, Placeholder: 1.})
+        result = sess.run(pred, feed_dict={X: image, keep_prob: 1.})
         #we can look at the softmax output as well
-        prob_array = sess.run(output, feed_dict={X: image, Placeholder: 1.})
+        prob_array = sess.run(output, feed_dict={X: image, keep_prob: 1.})
         #print("result",result,"prob",prob_array)
 
         #return result (add 1 as indexed from 1 not 0)
