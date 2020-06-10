@@ -135,8 +135,8 @@ img = PIL.Image.open(image_location)
 
 #check image rectified
 width, height = img.size
-if width != 730 or height != 1220:
-    print("Image not rectified")
+if width != 730 or (height != 1220 and height != 1250):
+    print("Image not rectified "+str(width)+", "+str(height))
     sys.exit(-3)
 
 #crop out active area
